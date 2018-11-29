@@ -1,5 +1,8 @@
 const isPromise = store => next => action => {
-  if(typeof action.then !== 'function') {
+  if(!action.payload) {
+    return next(action);
+  }
+  if(typeof action.payload.then !== 'function') {
     return next(action);
   }
 
