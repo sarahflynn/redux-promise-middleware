@@ -15,7 +15,7 @@ describe('promise middleware', () => {
     });
   });
 
-  it('calls LOAD_START action with dispatch if it us a promise', () => {
+  it('calls LOAD_START action with dispatch if it is a promise', () => {
     const reducer = jest.fn();
     const store = createStore(reducer, applyMiddleware(isPromise));
     const action = {
@@ -27,5 +27,19 @@ describe('promise middleware', () => {
     isPromise(store)(next)(action);
     expect(next.mock.calls).toHaveLength(0);
     expect(reducer.mock.calls[1][1]).toEqual({ type: 'LOAD_START' });
+  });
+
+  it('calls LOAD_END action with dispatch if it is a promise', () => {
+    const reducer = jest.fn();
+    const store = createStore(reducer, applyMiddleware(isPromise));
+    const action = {
+      type: 'fake',
+      payload: Promise.resolve(123)
+    };
+    const next = jest.fn();
+
+    isPromise(store)(next)(action);
+    expect(next.mock.calls).toHaveLength(0);
+    expect(reducer.mock.calls[2][1]).toEqual({ type: 'LOAD_END' });
   });
 });
