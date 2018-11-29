@@ -10,14 +10,15 @@ const promiseMiddleware = store => next => action => {
     type: 'LOAD_START'
   });
 
-  payload
+  return payload
     .then(result => {
       store.dispatch({ type: 'LOAD_END' });
       store.dispatch({ type: type, payload: result });
+    })
+    .catch(err => {
+      store.dispatch({ type: 'LOAD_END' });
+      store.dispatch({ type: 'ERROR', payload: err });
     });
-  // .catch(err => {
-
-  // });
 };
 
 function isPromise(payload) {

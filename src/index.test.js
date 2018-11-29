@@ -66,4 +66,38 @@ describe('promise middleware', () => {
       expect(reducer.mock.calls[3][1]).toEqual({ type: 'fake', payload: 123 });
     });
   });
+
+  it('calls LOAD_END action if there is an error', () => {
+    const reducer = jest.fn();
+    const store = createStore(reducer, applyMiddleware(promiseMiddleware));
+    const promise = Promise.reject('error');
+    const next = jest.fn();
+
+    return promiseMiddleware(store)(next)({
+      type: 'fake',
+      payload: promise
+    }).finally(() => {
+      expect(next.mock.calls).toHaveLength(0);
+      expect(reducer.mock.calls[2][1]).toEqual({ type: 'LOAD_END' });
+    });
+  });
+
+  it('returns an error if a promise is rejected', () => {
+    const reducer = jest.fn();
+    const store = createStore(reducer, applyMiddleware(promiseMiddleware));
+    const promise = Promise.reject('error');
+
+    const next = jest.fn();
+
+    return promiseMiddleware(store)(next)({
+      type: 'fake',
+      payload: promise
+    }).finally(() => {
+      expect(next.mock.calls).toHaveLength(0);
+      expect(reducer.mock.calls[3][1]).toEqual({
+        type: 'ERROR',
+        payload: 'error'
+      });
+    });
+  });
 });
