@@ -1,24 +1,27 @@
 const promiseMiddleware = store => next => action => {
-  if(!action.payload) {
+  const { payload, type } = action;
+  if(!payload) {
     return next(action);
   }
 
-  isPromise(next, action);
+  if(isPromise(payload)) return next(action);
 
   store.dispatch({
     type: 'LOAD_START'
   });
 
-  action.payload.then(result => {
-    store.dispatch({ type: 'LOAD_END' });
-    store.dispatch({ type: action.type, payload: result });
-  });
+  payload
+    .then(result => {
+      store.dispatch({ type: 'LOAD_END' });
+      store.dispatch({ type: type, payload: result });
+    });
+  // .catch(err => {
+
+  // });
 };
 
-function isPromise(next, action) {
-  if(typeof action.payload.then !== 'function') {
-    return next(action);
-  }
+function isPromise(payload) {
+  return typeof payload.then !== 'function';
 }
 
 export default promiseMiddleware;
