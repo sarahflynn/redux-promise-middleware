@@ -5,7 +5,6 @@ describe('promise middleware', () => {
   it('calls next with the dispatched action if the the action is not a promise', () => {
     const reducer = jest.fn();
     const store = createStore(reducer, applyMiddleware(promiseMiddleware));
-
     const next = jest.fn();
 
     promiseMiddleware(store)(next)({ type: 'SOME_ACTION', payload: '123' });
@@ -18,11 +17,11 @@ describe('promise middleware', () => {
   it('calls LOAD_START action with dispatch if it is a promise', () => {
     const reducer = jest.fn();
     const store = createStore(reducer, applyMiddleware(promiseMiddleware));
+    const next = jest.fn();
     const action = {
       type: 'fake',
       payload: Promise.resolve(123)
     };
-    const next = jest.fn();
 
     promiseMiddleware(store)(next)(action);
     expect(next.mock.calls).toHaveLength(0);
@@ -44,7 +43,7 @@ describe('promise middleware', () => {
 
     return promise.then(() => {
       expect(next.mock.calls).toHaveLength(0);
-      expect(reducer.mock.calls[2][1]).toEqual({ type: 'LOAD_END' });
+      expect(reducer.mock.calls[3][1]).toEqual({ type: 'LOAD_END' });
     });
   });
 
@@ -63,7 +62,7 @@ describe('promise middleware', () => {
 
     return promise.then(() => {
       expect(next.mock.calls).toHaveLength(0);
-      expect(reducer.mock.calls[3][1]).toEqual({ type: 'fake', payload: 123 });
+      expect(reducer.mock.calls[2][1]).toEqual({ type: 'fake', payload: 123 });
     });
   });
 

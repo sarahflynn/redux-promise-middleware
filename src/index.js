@@ -1,23 +1,22 @@
-const promiseMiddleware = store => next => action => {
+const promiseMiddleware = ({ dispatch }) => next => action => {
   const { payload, type } = action;
-  if(!payload) {
+  
+  if(!payload || isPromise(payload)){
     return next(action);
   }
 
-  if(isPromise(payload)) return next(action);
-
-  store.dispatch({
+  dispatch({
     type: 'LOAD_START'
   });
 
   return payload
     .then(result => {
-      store.dispatch({ type: 'LOAD_END' });
-      store.dispatch({ type: type, payload: result });
+      dispatch({ type: type, payload: result });
+      dispatch({ type: 'LOAD_END' });
     })
     .catch(err => {
-      store.dispatch({ type: 'LOAD_END' });
-      store.dispatch({ type: 'ERROR', payload: err });
+      dispatch({ type: 'LOAD_END' });
+      dispatch({ type: 'ERROR', payload: err });
     });
 };
 
